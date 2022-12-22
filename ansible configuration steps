@@ -1,0 +1,36 @@
+
+configuratin of ansible in vm
+=============================
+
+Ansible searches for configuration files in the following order, processing the first file it finds and ignoring the rest:
+
+1. $ANSIBLE_CONFIG if the environment variable is set.
+2. ansible.cfg if it’s in the current directory.
+3. ~/.ansible.cfg if it’s in the user’s home directory.
+4. /etc/ansible/ansible.cfg, the default config file.
+
+
+ansible.cfg if it’s in the current directory.
+
+or
+
+~/.ansible.cfg if it’s in the user’s home directory.
+
+cat hosts
+all
+
+cat ansible.cfg
+[defaults]
+inventory=hosts
+
+
+command
+-------
+
+ansible all
+
+/root/ansible/Python-3.9.13
+
+ansible_python_interpreter=/root/ansible/Python-3.9.13
+
+

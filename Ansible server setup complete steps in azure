@@ -1,0 +1,226 @@
+az vm create \
+--resource-group QuickstartAnsible-rg \
+--name QuickstartAnsible-vm \
+--image OpenLogic:CentOS:7.7:latest \
+--admin-username azureuser \
+--admin-password <password>
+
+az vm create \
+--resource-group ansible \
+--name QuickstartAnsible-vm \
+--image 0001-com-ubuntu-server-focal:canonical:20_04-lts:latest \
+--admin-username azureuser \
+--admin-password Uashrith@2003
+
+
+az vm create \
+--resource-group ansible \
+--name Ansible-ServerVm \
+--image UbuntuLTS \
+--admin-username azureuser \
+--admin-password Uashrith@2003
+
+ansible server 
+=============
+
+Ubuntu 20.04.5 LTS
+
+# Update all packages that have available updates.
+sudo apt update -y
+
+# Install Python 3 and pip.
+sudo apt install -y python3-pip
+
+# Upgrade pip3.
+sudo pip3 install --upgrade pip
+
+# Install Ansible.
+pip3 install "ansible==2.9.17"
+
+# Install Ansible azure_rm module for interacting with Azure.
+pip3 install ansible[azure]
+
+# Install Ansible az collection for interacting with Azure.
+ansible-galaxy collection install azure.azcollection
+
+
+# Install Ansible modules for Azure
+sudo pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+
+
+
+Install the Azure CLI 
+=====================4
+
+
+Option 1
+---------
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+
+Option 2
+--------
+sudo apt-get update
+
+sudo apt-get install ca-certificates curl apt-transport-https lsb-release gnupg
+
+curl -sL https://packages.microsoft.com/keys/microsoft.asc |
+    gpg --dearmor |
+    sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+    
+AZ_REPO=$(lsb_release -cs)
+echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |
+    sudo tee /etc/apt/sources.list.d/azure-cli.list
+    
+    
+    
+Create an Azure service principal for Ansible
+=============================================
+
+az ad sp create-for-rbac --name ansible 
+
+{
+  "appId": "f54b63ab-29df-40b8-bbc2-2b6009f3da9d",
+  "displayName": "ansible",
+  "password": "j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA",
+  "tenant": "23da8b38-62b6-457c-a244-a9fbec5e36cc"
+}
+
+
+az role assignment create --assignee f54b63ab-29df-40b8-bbc2-2b6009f3da9d --role Contributor
+
+
+Create Azure credentials
+========================
+
+
+[default]
+subscription_id=ae2747a6-a498-460e-86dc-7a823472a1c1
+client_id=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
+secret=j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA
+tenant=23da8b38-62b6-457c-a244-a9fbec5e36cc     
+
+
+Option 2: Define Ansible environment variables -- working
+----------------------------------------------------------
+export AZURE_SUBSCRIPTION_ID=ae2747a6-a498-460e-86dc-7a823472a1c1
+export AZURE_CLIENT_ID=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
+export AZURE_SECRET=j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA
+export AZURE_TENANT=23da8b38-62b6-457c-a244-a9fbec5e36cc  
+
+
+module 'lib' has no attribute 'x509_v_flag_cb_issuer_check' python issue solution
+---------------------------------------------------------------------------------
+pip install pip --upgrade
+pip install pyopenssl --upgrade
+
+shared connection to closed ansible issue solution
+--------------------------------------------------
+ansible all  -e 'ansible_python_interpreter=/usr/bin/python3' -a "systemctl status firewalld" -u root
+
+ansible all  -e 'ansible_python_interpreter=/usr/bin/python3' -a "sudo ufw status verbose" -u azureuser -b
+
+ansible all  -e 'ansible_python_interpreter=/usr/bin/python3' -a "sudo ufw status" -u azureuser -b
+
+ansible all  -e 'ansible_python_interpreter=/usr/bin/python3' -a "sudo ufw start" -u azureuser -b
+
+ansible all  -e 'ansible_python_interpreter=/usr/bin/python3' -a "sudo ufw enable" -u azureuser -b
+
+sudo ufw status verbose
+
+sudo ufw allow 22
+
+sudo ufw enable
+
+configuratin of ansible in vm
+=============================
+
+Ansible searches for configuration files in the following order, processing the first file it finds and ignoring the rest:
+
+1. $ANSIBLE_CONFIG if the environment variable is set.
+2. ansible.cfg if it’s in the current directory.
+3. ~/.ansible.cfg if it’s in the user’s home directory.
+4. /etc/ansible/ansible.cfg, the default config file.
+
+
+ansible.cfg if it’s in the current directory.
+
+or
+
+~/.ansible.cfg if it’s in the user’s home directory.
+
+cat hosts
+all
+
+cat hosts
+[nodes]
+node_w1 ansible_user=azureuser ansible_host=172.173.175.14
+node_w2 ansible_user=azureuser ansible_host=172.173.203.111
+node_s1 ansible_user=azureuser ansible_host=20.163.254.249
+
+
+cat ansible.cfg
+[defaults]
+inventory = hosts
+
+[defaults]
+inventory = hosts.ini
+
+
+
+keys generation
+================
+
+ssh-keygen
+
+
+
+copy public keys to worker nodes
+--------------------------------
+/home/azureuser/.ssh
+ssh-copy-id azureuser@172.173.203.111
+
+ssh-copy-id azureuser@<<worker-machine-ip>>
+
+inventory setup
+================
+
+
+cd ~
+mkdir ansible
+cd ansible
+
+vi inventory
+-------------
+20.231.23.120
+20.115.19.146
+172.174.78.151
+20.127.135.185
+
+ansible-inventory -i inventory --list
+
+#inventory      = /etc/ansible/hosts
+ or
+ 
+ inventory      = /home/azuresuer/hosts
+
+
+[default]
+inventory=/home/azureuser/hosts
+inventory=/home/azureuser/.ansible/inventory
+
+
+hosts.ini
+---------
+path: /home/azureuser
+
+[nodes]
+node_s1 ansible_user=azureuser ansible_host=20.163.254.249
+node_w1 ansible_user=azureuser ansible_host=172.173.175.14
+node_w2 ansible_user=azureuser ansible_host=172.173.203.111
+
+
+
+ansible all -m ping -i hosts.ini
+                     
+ansible all -m ping                     

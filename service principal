@@ -1,0 +1,50 @@
+
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/create-ansible-service-principal?tabs=azure-cli
+
+Create an Azure service principal for Ansible
+=============================================
+
+
+az ad sp create-for-rbac --name ansible
+
+{
+  "appId": "f54b63ab-29df-40b8-bbc2-2b6009f3da9d",
+  "displayName": "ansible",
+  "password": "n1M8Q~JWO4d1UFI06W0KiBH_tB1YDUjWfkzRCaj.",
+  "tenant": "23da8b38-62b6-457c-a244-a9fbec5e36cc"
+}
+
+
+az role assignment create --assignee f54b63ab-29df-40b8-bbc2-2b6009f3da9d --role Contributor
+
+
+option 1: Create Ansible credentials file -not working
+------------------------------------------------------
+
+[default]
+subscription_id=ae2747a6-a498-460e-86dc-7a823472a1c1
+client_id=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
+secret=n1M8Q~JWO4d1UFI06W0KiBH_tB1YDUjWfkzRCaj.
+tenant=23da8b38-62b6-457c-a244-a9fbec5e36cc
+
+az ad sp list --display-name ansible --query '{clientId:[0].appId}'
+ 
+
+Option 2: Define Ansible environment variables -- working
+----------------------------------------------------------
+export AZURE_SUBSCRIPTION_ID=ae2747a6-a498-460e-86dc-7a823472a1c1
+export AZURE_CLIENT_ID=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
+export AZURE_SECRET=ZBS8Q~FNlPmoiFO1EMAEbGPRO7HEeALynDbHNdy6
+export AZURE_TENANT=23da8b38-62b6-457c-a244-a9fbec5e36cc
+
+
+az login 
+
+ansible localhost -m azure_rm_resourcegroup -a "name=example-rg1 location=eastus"
+
+ansible localhost -m azure_rm_resourcegroup -a "name=example-rg state=absent force_delete_nonempty=yes"
+
+ansible-playbook create_rg_a.yml --extra-vars "name=<resource_group_name> location=<resource_group_location>"
+
+ansible-playbook create_rg_a.yml --extra-vars "name=example-rg location=eastus"

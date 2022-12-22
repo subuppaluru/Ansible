@@ -1,0 +1,29 @@
+Configure Ansible on an Azure VM
+--------------------------------
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/install-on-linux-vm?tabs=azure-cli
+
+Ansible server in azure
+-----------------------
+
+username: azureuser
+
+password: Uashrith@2003
+
+Configure Ansible using Azure Cloud Shell
+-----------------------------------------
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/getting-started-cloud-shell?tabs=ansible
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/install-on-linux-vm?tabs=azure-cli
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/vm-configure?tabs=ansible
+
+
+https://github.com/anshulc55/ansible_automation
+
+https://github.com/in28minutes/devops-master-class/tree/master/ansible
+
+https://github.com/Azure-Samples/ansible-playbooks
+
+

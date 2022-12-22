@@ -1,0 +1,58 @@
+
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/overview
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/getting-started-cloud-shell?tabs=ansible
+
+https://learn.microsoft.com/en-us/azure/developer/ansible/create-ansible-service-principal?tabs=azure-cli
+
+
+https://phoenixnap.com/kb/install-ansible-ubuntu-20-04
+
+pip install ansible
+
+wget -nv -q https://raw.githubusercontent.com/ansible-collections/azure/dev/requirements-azure.txt
+
+az ad sp create-for-rbac --name ansible \
+            --role Contributor \
+            --scopes /subscriptions/<subscription_id>
+
+
+az ad sp create-for-rbac --name ansible \
+            --role Contributor \
+            --scopes /subscriptions/ae2747a6-a498-460e-86dc-7a823472a1c1 
+            
+            
+{
+  "appId": "f54b63ab-29df-40b8-bbc2-2b6009f3da9d",
+  "displayName": "ansible",
+  "password": "3498Q~hKiNSz7NaJyJgJ.1MpFNB4OCk9r_3.icKv",
+  "tenant": "23da8b38-62b6-457c-a244-a9fbec5e36cc"
+}
+
+/home/azureuser/.ssh/id_rsa.pub
+
+/home/azureuser/.ssh/id_rsa
+
+az role assignment create --assignee <appID> \
+    --role Contributor \
+    --scope /subscriptions/<subscription_id>/resourceGroups/<resource_group_name>   
+    
+    
+az role assignment create --assignee f54b63ab-29df-40b8-bbc2-2b6009f3da9d \
+    --role Contributor \
+    --scope /subscriptions/ae2747a6-a498-460e-86dc-7a823472a1c1       
+    
+    
+az account show --query '{tenantId:tenantId,subscriptionid:id}';
+
+az ad sp list --display-name ansible --query '{clientId:[0].appId}'
+
+
+export AZURE_SUBSCRIPTION_ID=ae2747a6-a498-460e-86dc-7a823472a1c1
+export AZURE_CLIENT_ID=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
+export AZURE_SECRET=3498Q~hKiNSz7NaJyJgJ.1MpFNB4OCk9r_3.icKv
+export AZURE_TENANT=23da8b38-62b6-457c-a244-a9fbec5e36cc
+          
+          
+ansible localhost -m azure_rm_resourcegroup -a "name=ex-rg location=eastus"          

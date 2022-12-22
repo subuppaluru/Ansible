@@ -1,0 +1,15 @@
+
+ssh-keygen
+
+/home/azureuser/.ssh
+
+
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz+Mn+49tLqu2CVJ6O9UITr3jbsvLKvhRYj2UMPXmkPEI+zsyJkexUqLjRcklH8ZeXekX+f41pGihd8x6uQBFBDxlJxcvVL2FXAxgKGYjXfRysYtmmhWWbAsKZ604D7kSzPvLFdH8G0zdKWKwKdnAO0fer9kwUNS0MvXpT371ckY4yadwZWu4P2zdf/lJPsCHIzEQpQQ1cx0U8YwKZj1PczBgPPOnIC7wN4ElH6i0MWKcp4uk3MXi0piAX7GZDGzECucwyCVKPZSKt+0RUF+8MShYXTBDsXCuAaWqmAOchI+XvHfQVgjM8R7QPwW072FIQI5DG35Ny2PE7shbGPcIV azureuser@ansible-server
+
+copy id_rsa.pub to ansible works in the path : /home/azureuser/.ssh/authorized_keys
+
+
+20.115.19.146
+
+scp ~/.ssh/id_rsa.pub azureuser@172.174.78.151
