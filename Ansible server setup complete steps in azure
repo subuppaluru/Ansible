@@ -1,3 +1,5 @@
+az vm image list --output table
+
 az vm create \
 --resource-group QuickstartAnsible-rg \
 --name QuickstartAnsible-vm \
@@ -7,18 +9,32 @@ az vm create \
 
 az vm create \
 --resource-group ansible \
---name QuickstartAnsible-vm \
---image 0001-com-ubuntu-server-focal:canonical:20_04-lts:latest \
+--name AnsibleServer \
+--image canonical:0001-com-ubuntu-server-focal:20_04-lts:latest \
 --admin-username azureuser \
 --admin-password Uashrith@2003
-
 
 az vm create \
 --resource-group ansible \
---name Ansible-ServerVm \
---image UbuntuLTS \
+--name AnsibleWorker1 \
+--image canonical:0001-com-ubuntu-server-focal:20_04-lts:latest \
 --admin-username azureuser \
 --admin-password Uashrith@2003
+
+az vm create \
+--resource-group ansible \
+--name AnsibleWorker2 \
+--image canonical:0001-com-ubuntu-server-focal:20_04-lts:latest \
+--admin-username azureuser \
+--admin-password Uashrith@2003
+
+az vm create \
+--resource-group ansible \
+--name AnsibleWorker3 \
+--image canonical:0001-com-ubuntu-server-focal:20_04-lts:latest \
+--admin-username azureuser \
+--admin-password Uashrith@2003
+
 
 ansible server 
 =============
@@ -30,6 +46,7 @@ sudo apt update -y
 
 # Install Python 3 and pip.
 sudo apt install -y python3-pip
+sudo apt install python3-pip
 
 # Upgrade pip3.
 sudo pip3 install --upgrade pip
@@ -41,6 +58,8 @@ pip3 install "ansible==2.9.17"
 pip3 install ansible[azure]
 
 # Install Ansible az collection for interacting with Azure.
+sudo apt install ansible
+
 ansible-galaxy collection install azure.azcollection
 
 
@@ -72,7 +91,8 @@ AZ_REPO=$(lsb_release -cs)
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" |
     sudo tee /etc/apt/sources.list.d/azure-cli.list
     
-    
+
+sudo apt install azure-cli    
     
 Create an Azure service principal for Ansible
 =============================================
@@ -82,7 +102,15 @@ az ad sp create-for-rbac --name ansible
 {
   "appId": "f54b63ab-29df-40b8-bbc2-2b6009f3da9d",
   "displayName": "ansible",
-  "password": "j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA",
+  "password": "bhU8Q~WG~LkfUN8aZeXvJa1-YaPcZHiJtVIZebnl",
+  "tenant": "23da8b38-62b6-457c-a244-a9fbec5e36cc"
+}
+
+
+{
+  "appId": "f54b63ab-29df-40b8-bbc2-2b6009f3da9d",
+  "displayName": "ansible",
+  "password": "bhU8Q~WG~LkfUN8aZeXvJa1-YaPcZHiJtVIZebnl",
   "tenant": "23da8b38-62b6-457c-a244-a9fbec5e36cc"
 }
 
@@ -93,12 +121,17 @@ az role assignment create --assignee f54b63ab-29df-40b8-bbc2-2b6009f3da9d --role
 Create Azure credentials
 ========================
 
+/home/azureuser
+
+mkdir ~/.azure
+
 
 [default]
 subscription_id=ae2747a6-a498-460e-86dc-7a823472a1c1
 client_id=f54b63ab-29df-40b8-bbc2-2b6009f3da9d
 secret=j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA
 tenant=23da8b38-62b6-457c-a244-a9fbec5e36cc     
+
 
 
 Option 2: Define Ansible environment variables -- working
@@ -109,10 +142,15 @@ export AZURE_SECRET=j5z8Q~5-iy~B1MUY2u9s8ylQt~DVKVeOpETQnbdA
 export AZURE_TENANT=23da8b38-62b6-457c-a244-a9fbec5e36cc  
 
 
+
 module 'lib' has no attribute 'x509_v_flag_cb_issuer_check' python issue solution
 ---------------------------------------------------------------------------------
 pip install pip --upgrade
 pip install pyopenssl --upgrade
+
+apt-get --reinstall install python-apt
+apt-get --reinstall install apt-transport-https
+apt-get install build-essential libssl-dev libffi-dev python-dev
 
 shared connection to closed ansible issue solution
 --------------------------------------------------
@@ -160,11 +198,34 @@ node_s1 ansible_user=azureuser ansible_host=20.163.254.249
 
 
 cat ansible.cfg
+---------------
 [defaults]
 inventory = hosts
 
 [defaults]
 inventory = hosts.ini
+
+
+cat ansible.cfg
+---------------
+
+[defaults]
+host_key_checking = False
+inventory = /home/azureuser/myinventory_azure_rm.yml
+
+[inventory]
+enable_plugins = host_list, script, auto, yaml, ini, toml
+
+
+/home/azureuser/myinventory_azure_rm.yml
+----------------------------------------
+plugin: azure_rm
+
+include_vm_resource_groups:
+  - ansible
+auth_source: auto
+filters:
+    instance-state-name: running
 
 
 
